@@ -1,0 +1,8 @@
+numpy
+pandas
+torch
+torcheval
+torchvision
+tqdm
+wandb
+git+https://github.com/FraunhoferMEVIS/meval
