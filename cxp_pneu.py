@@ -19,8 +19,6 @@ import torchvision.transforms.v2 as transforms
 from torchvision.models import densenet121
 from torcheval.metrics import BinaryAUROC
 
-from meval.diags import rel_diag
-
 torch.backends.cudnn.benchmark = True
 torch.backends.cudnn.deterministic = False
 torch.set_float32_matmul_precision('high')
@@ -338,9 +336,6 @@ def train_and_eval(data_dir, csv_dir, out_dir):
     test_results_misaligned_df.to_csv(out_dir / 'cxp_pneu_densenet_test_results_misaligned.csv')
     logging.info(f"Test Loss MISALIGNED: {test_loss_misaligned:.4f} AUROC: {test_auroc_misaligned.compute():.4f} Brier: {test_brier_misaligned:.4f}\n")
     
-    rel_diag(test_results_aligned_df, plot_groups=['drain=0', 'drain=1'], export_fig_size_cm=(12, 7), export_fig_path=str(out_dir / 'calibration_aligned.png'), legend=True, fig_title=None)        
-    rel_diag(test_results_misaligned_df, plot_groups=['drain=0', 'drain=1'], export_fig_size_cm=(12, 7), export_fig_path=str(out_dir / 'calibration_misaligned.png'), legend=True, fig_title=None)    
-
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
