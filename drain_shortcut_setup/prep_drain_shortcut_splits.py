@@ -122,6 +122,7 @@ test_misaligned = pd.concat([full_df[~used & pneu_msk & ~drain_msk].sample(20), 
                          ignore_index=False)                         
 used = used | (full_df.index.isin(test_misaligned.index))  # index is Path
 
+# VERSION 1: Train + val identically sampled
 # critical group: pneu + drain
 n_base = (pneu_msk & drain_msk & ~used).sum()
 
@@ -136,3 +137,19 @@ train.to_csv(root_dir / 'train_drain_shortcut.csv')
 val.to_csv(root_dir / 'val_drain_shortcut.csv')
 test_aligned.to_csv(root_dir / 'test_drain_shortcut_aligned.csv')
 test_misaligned.to_csv(root_dir / 'test_drain_shortcut_misaligned.csv')
+
+# VERSION 2: balanced val set
+val = pd.concat([full_df[pneu_msk & drain_msk].sample(25), full_df[pneu_msk & ~drain_msk].sample(25),
+                          full_df[~pneu_msk & ~drain_msk].sample(25), full_df[~pneu_msk & drain_msk].sample(25)], 
+                         ignore_index=False)                  
+used = used | (full_df.index.isin(val.index))  # index is Path
+
+# critical group: pneu + drain
+n_base = (pneu_msk & drain_msk & ~used).sum()
+
+# use this as basis + calc remaining group sizes from this
+train = pd.concat([full_df[~used & pneu_msk & drain_msk].sample(n_base), full_df[~used & pneu_msk & ~drain_msk].sample(int(n_base/3)),
+                       full_df[~used & ~pneu_msk & drain_msk].sample(int(n_base/3)), full_df[~used & ~pneu_msk & ~drain_msk].sample(n_base)],
+                      ignore_index=False)
+train.to_csv(root_dir / 'train_drain_shortcut_v2.csv')
+val.to_csv(root_dir / 'val_drain_shortcut_v2.csv')
