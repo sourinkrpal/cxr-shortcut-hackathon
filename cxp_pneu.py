@@ -68,8 +68,18 @@ class CXP_Model(nn.Module):
     def __init__(self):
         super().__init__()
         self.encoder = densenet121(weights='IMAGENET1K_V1')
+        
+        # Remove the original classifier
+        num_features = self.encoder.classifier.in_features
+        assert num_features == 1024
+        self.encoder.classifier = nn.Identity()  # Remove the classification head
+        
         # using BCEWithLogitsLoss, so no sigmoid needed - but need explicit sigmoid for prob prediction
-        self.clf = nn.Linear(1000, 1)
+        self.clf = nn.Sequential(
+            nn.Linear(num_features, 512),  # 1024 -> 512
+            nn.ReLU(),
+            nn.Linear(512, 1)  # 512 -> 1
+        )
 
     def forward(self, x):
         z = self.encode(x)
